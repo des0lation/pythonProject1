@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-import os,io
+import os,io,random
 
 app = FastAPI()
 
@@ -15,14 +15,15 @@ def versions():
 
 
 file_size = 0
-file_path = "C:\\Users\\61426\\Desktop\\previous_versions3.txt"
+file_path = "C:\\Users\\61426\\Desktop\\previous_versions.txt"
 try:
     with open(file_path, "wb") as f:
         bf = io.BufferedWriter(f)
         max_size = 100 * 1024 * 1024
-        while bf.tell() < max_size:
-            data = bytes("a" * 1024 * 1024, "utf-8")
-            bf.write(bytes("a" * 1024 * 1024, "utf-8"))
+        while file_size < max_size:
+            string = 'V'+str(random.randint(1, 100))+'.'+str(random.randint(1, 100))+'.'+str(random.randint(1, 100))
+            data = bytes(string, "utf-8")
+            bf.write('\n'+data)
             file_size += len(data)
         bf.flush()
 except Exception as e:
@@ -35,6 +36,7 @@ def current():
         contents = file.read()
         size = os.path.getsize("C:\\Users\\61426\\Desktop\\latest_version.txt")
     return contents,size/(1024 * 1024)
+
 
 @app.get('/versions/previous')
 def current():
