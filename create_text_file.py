@@ -1,8 +1,8 @@
-import os,io,random
+import os,io,random,zlib
 file_size = 0
-#file_path = "C:\\Users\\61426\\Desktop\\previous_versions.txt"
+file_path = "C:\\Users\\61426\\Desktop\\previous_versions.txt"
 #Mac
-file_path = '/Users/abishekshome/previous_versions.txt'
+#file_path = '/Users/abishekshome/previous_versions.txt'
 try:
     with open(file_path, "wb") as f:
         bf = io.BufferedWriter(f)
