@@ -1,17 +1,9 @@
-import os,io
+import requests, json,time
+import time
+t_now = time.time()
+data = requests.get("http://127.0.0.1:8000/versions/previous").text
+t_done = time.time()
+print(t_done-t_now)
 
-file_size = 0
-file_path = "C:\\Users\\61426\\Desktop\\previous_versions.txt"
-try:
-    with open(file_path, "wb") as f:
-        bf = io.BufferedWriter(f)
-        max_size = 100 * 1024 * 1024
-        while bf.tell() < max_size:
-            data = bytes("a" * 1024 * 1024, "utf-8")
-            bf.write(bytes("a" * 1024 * 1024, "utf-8"))
-            file_size += len(data)
-        bf.flush()
-except Exception as e:
-    print(f"An error occurred while writing to the file: {e}")
 
 
