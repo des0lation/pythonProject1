@@ -15,7 +15,7 @@ dict = {
     "highest_minor": 0,
     "highest_patch": 0
 }
-def process_version(data):
+def process_version(data,highest_major,highest_minor,highest_patch):
     highest_version = None
     for version in data:
         x = version.split('.')
@@ -41,6 +41,6 @@ datas = [data[i:i+list_size] for i in range(0, len(data), list_size)]
 if __name__ == '__main__':
     t_now = time.time()
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = executor.map(process_version,datas)
+        results = executor.map(process_version,[datas,highest_major,highest_minor,highest_patch])
     t_done = time.time()
     print("Finished in", t_done-t_now)
