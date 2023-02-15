@@ -1,23 +1,24 @@
 import requests, json,time,zlib
 import time, numpy as np
 
-t_now = time.time()
+
 data = requests.get("http://127.0.0.1:8000/versions").text
-data = data.replace("V","").replace('"','').split("\\n")
+t_now = time.time()
+data = data.replace("V",'').split("\\n")
 data.pop(0)
-
-
-values = []
+highest_major = 7
+highest_minor = 7
+highest_patch = 7
 for i in data:
-    form = np.array([10000, 99, 0.99])
-    x = i.split(".")
-    x2 = np.array([int(i) for i in x])
-    values.append(np.dot(x2,form))
-
-index = values.index(max(values))
-print(data[index])
-
-
+    x = i.split('.')
+    if int(x[0]) >= highest_major:
+        highest_major = int(x[0])
+        if int(x[1]) >= highest_minor:
+            highest_minor = int(x[1])
+            if int(x[2]) >= highest_patch:
+                highest_patch = int(x[2])
+                end_version = x
+print(end_version)
 t_done = time.time()
 print("Time taken is",t_done - t_now)
 
