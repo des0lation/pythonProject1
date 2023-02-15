@@ -1,49 +1,51 @@
 import math
 
-import requests,time,threading,math
+import requests,time,threading,math,numpy as np
 
 end_version = []
 lock = threading.Lock()
 
-dict = {
-    "highest_major": 0,
-    "highest_minor": 0,
-    "highest_patch": 0
-}
-def process_version(data,dict):
+
+highest_major = 0
+highest_minor = 0
+highest_patch = 0
+values = []
+
+def process_version(data,highest_major,highest_minor,highest_patch):
     highest_version = None
     with lock:
-        for version in data:
-            x = version.split('.')
-            if int(x[0]) >= dict['highest_major']:
-                dict['highest_major'] = int(x[0])
-                if int(x[1]) >= dict['highest_minor']:
-                    dict['highest_minor'] = int(x[1])
-                    if int(x[2]) >= dict['highest_patch']:
-                        dict['highest_patch'] = int(x[2])
+        for x in data:
+            x = x.split('.')
+            if int(x[0]) >= highest_major:
+                highest_major = int(x[0])
+                if int(x[1]) >= highest_minor:
+                    highest_minor = int(x[1])
+                    if int(x[2]) >= highest_patch:
+                        highest_patch = int(x[2])
                         highest_version = x
-        if highest_version not in end_version:
-            end_version.append(highest_version)
+        end_version.append(highest_version)
         return end_version
 
+
 data = requests.get("http://127.0.0.1:8000/versions").text
-
-
 t_now = time.time()
-data = data.replace("V", '').split("\\n")
-data.pop(0)
+data = data.replace("V", '').split("\\n")[1:-1]
 data_len = len(data)
 list_size = math.ceil(len(data) / 8)
-datas = [data[i:i+list_size] for i in range(0, len(data), list_size)]
+datas = []
+for i in np.arange(0,len(data),list_size):
+    datas.append(data[i:i+list_size])
 
-t1 = threading.Thread(target=process_version,args =(datas[0],dict))
-t2 = threading.Thread(target=process_version, args =(datas[1],dict))
-t3 = threading.Thread(target=process_version, args =(datas[2],dict))
-t4 = threading.Thread(target=process_version, args =(datas[3],dict))
-t5 = threading.Thread(target=process_version, args =(datas[4],dict))
-t6 = threading.Thread(target=process_version, args =(datas[5],dict))
-t7 = threading.Thread(target=process_version, args =(datas[6],dict))
-t8 = threading.Thread(target=process_version, args =(datas[7],dict))
+
+
+t1 = threading.Thread(target=process_version,args =(datas[0],highest_major,highest_minor,highest_patch))
+t2 = threading.Thread(target=process_version, args =(datas[1],highest_major,highest_minor,highest_patch))
+t3 = threading.Thread(target=process_version, args =(datas[2],highest_major,highest_minor,highest_patch))
+t4 = threading.Thread(target=process_version, args =(datas[3],highest_major,highest_minor,highest_patch))
+t5 = threading.Thread(target=process_version, args =(datas[4],highest_major,highest_minor,highest_patch))
+t6 = threading.Thread(target=process_version, args =(datas[5],highest_major,highest_minor,highest_patch))
+t7 = threading.Thread(target=process_version, args =(datas[6],highest_major,highest_minor,highest_patch))
+t8 = threading.Thread(target=process_version, args =(datas[7],highest_major,highest_minor,highest_patch))
 
 t1.start()
 t2.start()
@@ -62,7 +64,7 @@ t5.join()
 t6.join()
 t7.join()
 t8.join()
-print(end_version)
 
+print(end_version)
 t_done = time.time()
 print("Time taken is", t_done - t_now)
