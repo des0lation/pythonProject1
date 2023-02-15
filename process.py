@@ -41,6 +41,6 @@ datas = [data[i:i+list_size] for i in range(0, len(data), list_size)]
 if __name__ == '__main__':
     t_now = time.time()
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = executor.map(process_version,[datas,highest_major,highest_minor,highest_patch])
+        results = executor.map(process_version,[datas[0],highest_major,highest_minor,highest_patch],[datas[1],highest_major,highest_minor,highest_patch],[datas[2],highest_major,highest_minor,highest_patch],[datas[3],highest_major,highest_minor,highest_patch],[datas[4],highest_major,highest_minor,highest_patch])
     t_done = time.time()
     print("Finished in", t_done-t_now)
