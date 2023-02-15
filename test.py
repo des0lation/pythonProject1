@@ -1,11 +1,6 @@
 import requests, json,time,zlib
 import time, numpy as np
 
-def lz77_decode(data):
-    text = zlib.decompress(data).decode()
-    return text
-
-
 t_now = time.time()
 data = requests.get("http://127.0.0.1:8000/versions").text
 data = data.replace("V","").replace('"','').split("\\n")
