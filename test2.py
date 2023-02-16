@@ -1,34 +1,68 @@
-import requests
-import time
-import numpy as np
-import multiprocessing as mp
+import requests,time,threading,math,numpy as np,cProfile,pstats
+results = []
+highest_major = 0
+highest_minor = 0
+highest_patch = 0
 
-def process_version(args):
-    highest_version = None
-    for version_str in args[0]:
-        version = np.array(version_str.split('.')).astype(np.int32)
-        if highest_version is None or (version > highest_version).any():
-            highest_version = version
-    return highest_version
+def process_version(data):
+    global results
+    local = threading.local()
+    local.highest_major = 0
+    local.highest_minor = 0
+    local.highest_patch = 0
+    local.current_major = 0
+    local.current_minor = 0
+    local.current_patch = 0
+    local.new_data = []
+    local.new_data2 = []
+    counter = 0
+    for x in data[0:5]:
+        x = x.split(".")
+        local.current_major = int(x[0])
+        local.current_minor = int(x[1])
+        local.current_patch = int(x[2])
+        if local.current_major >= local.highest_major:
+            local.highest_major = local.current_major
+            if local.current_minor >= local.highest_minor:
+                local.highest_minor = local.current_minor
+                if local.current_patch >= local.highest_patch:
+                    local.highest_patch = local.current_patch
+    for x in data:
+        x = x.split(".")
+        if int(x[0]) > local.highest_major:
+            local.highest_major = int(x[0])
+            local.new_data.append(x)
+    for x in local.new_data:
+        counter += 1
+        if int(x[1]) > local.highest_minor:
+            local.highest_minor = int(x[1])
+            local.new_data2.append(x)
+    for x in local.new_data2:
+        if int(x[2]) > local.highest_patch:
+            local.highest_patch = int(x[2])
 
-if __name__ == '__main__':
-    data = requests.get("http://127.0.0.1:8000/versions").text
-    data = data.replace("V", '').split("\\n")[1:-1]
-    data = np.array(data)
 
-    chunk_size = len(data) // mp.cpu_count()
-    datas = [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)]
-    args = []
-    for i in datas:
-        args.append([])
 
-    with mp.Pool() as pool:
-        start_time = time.monotonic()
-        results = pool.map(process_version, datas)
-        end_time = time.monotonic()
 
-        # Find the highest version across all results
-        highest_version = np.max(results, axis=0)
+data = requests.get("http://127.0.0.1:8000/versions").text
+data = data.strip("\"").split("\\nV")
+data.pop(0)
+data_len = len(data)
+list_size = math.ceil(data_len / 100)
 
-        print(f"Found highest version: {'.'.join(highest_version.astype(str))}")
-        print(f"Time taken is {end_time - start_time} seconds")
+t_1 = time.perf_counter()
+
+with cProfile.Profile() as pr:
+    for i in np.arange(0,data_len,list_size):
+        t = threading.Thread(target=process_version, args=[data[i:i+list_size]])
+        t.start()
+    while t.is_alive() == True:
+        continue
+
+t_2 = time.perf_counter()
+
+
+stats = pstats.Stats(pr)
+stats.sort_stats(pstats.SortKey.TIME)
+stats.print_stats()
+print(t_2-t_1)
