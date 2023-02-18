@@ -34,7 +34,6 @@ def process_version(data):
 data = requests.get("http://127.0.0.1:8000/versions").text
 data = data.strip("\"").split("\\nV")
 data.pop(0)
-print(len(data))
 for i in data[0:100]:
     x = i.split(".")
     current_major = int(x[0])
