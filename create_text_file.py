@@ -6,7 +6,7 @@ file_path = "C:\\Users\\61426\\Desktop\\previous_versions.txt"
 try:
     with open(file_path, "wb") as f:
         bf = io.BufferedWriter(f)
-        max_size = 100 * 1024 * 1024
+        max_size = 1000 * 1024 * 1024
         while file_size < max_size:
             string = 'V'+str(random.randint(1, 100))+'.'+str(random.randint(1, 100))+'.'+str(random.randint(1, 100))
             data = bytes('\n'+string, "utf-8")
