@@ -4,6 +4,7 @@ import threading,math,time
 data = list(set(get("http://127.0.0.1:8000/versions").text[1:-1].split("\\nV")[1:]))
 t_1 = time.perf_counter()
 maxs = []
+
 def sort_versions(data_chunk):
     maxs.append(max(tuple(tuple(int(x) for x in version.split(".")) for version in data_chunk)))
     return
